@@ -33,3 +33,4 @@ O agente de saude aceita/rejeita a marcação de consulta do paciente, caso seja
 O paciente requisita que suas informações sejam deletadas do sistema pelo caht bot usando uma key recebida por ele, a key tambem esta disponivel em um email enviado
 - Alterar paciente
 O paciente faz um requisito utilizando sua key que suas informaçoes sejam modificadas, é checada se a key esta correta e caso esteja o paciente pode mudar as suas informações
+![image](https://user-images.githubusercontent.com/48698232/180429451-3d2661d3-66cb-4b18-9c01-390e66246539.png)
