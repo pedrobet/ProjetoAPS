@@ -14,4 +14,4 @@ Um sistema para ajudar agentes de saúde na marcação de consultas. Um chatbot 
 ## Slide: [Slide entrega 2](https://docs.google.com/presentation/d/1rr6ktON3pIaor4Bdq6IipMGjfV5x37rnXnMhu0dCxTo/edit#slide=id.g1449ac61b45_0_438) <br>
 ## Especificação de casos de uso
 
-![image](./assets/Casos_de_Uso.PNG)
+![image](./assets/Screenshot_18.png)
