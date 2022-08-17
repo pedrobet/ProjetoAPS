@@ -43,12 +43,12 @@ const PORT = process.env.PORT || 3333;
 //! configs do firebase
 const firebaseConfig = {
   ...serviceAccount,
-  apiKey: 'AIzaSyD_mjxB03qGURwxNQQaIHaD2ABkcaXM-fo',
-  authDomain: 'projetoaps-f963a.firebaseapp.com',
-  projectId: 'projetoaps-f963a',
-  storageBucket: 'projetoaps-f963a.appspot.com',
-  messagingSenderId: '837966199037',
-  appId: '1:837966199037:web:96ee6da8d76c1700482694',
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
 };
 
 admin.initializeApp({
