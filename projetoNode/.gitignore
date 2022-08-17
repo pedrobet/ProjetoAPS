@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+
+coverage
+
+src/tmp/*
+src/tmp/uploads/*
+!src/tmp/uploads
+!src/tmp/uploads/.gitkeep
+.DS_Store
+
+.env
+ormconfig.json
+yarn-error.log
