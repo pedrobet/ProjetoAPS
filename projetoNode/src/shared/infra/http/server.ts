@@ -9,7 +9,7 @@ import 'express-async-errors';
 import AppError from '../../errors/AppError';
 import routes from './routes';
 
-import '@shared/container';
+import '../../typeorm/index';
 
 // account key:
 import serviceAccount from '../../../../projetoaps.json';
@@ -62,7 +62,6 @@ fireorm.initialize(firestore);
 if (firestore) {
   console.log('🔥 Firestore is connected');
 }
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Server started at port ${PORT}`);

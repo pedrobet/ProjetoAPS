@@ -1,17 +1,23 @@
-import { Collection } from 'fireorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Collection('users')
+@Entity('users')
 class User {
-  id: string;
+  @ObjectIdColumn()
+  _id: ObjectID;
 
+  @Column()
   username: string;
 
+  @Column()
   name: string;
 
+  @Column()
   email: string;
 
-  role: 'admin' | 'acs';
+  @Column()
+  role: string;
 
+  @Column()
   password: string;
 }
 

@@ -1,15 +1,20 @@
-import { Collection } from 'fireorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Collection('available_times')
+@Entity('available_times')
 class AvailableTime {
-  id: string;
+  @ObjectIdColumn()
+  _id: ObjectID;
 
+  @Column()
   availableTime: Date;
 
+  @Column()
   doctorName: string;
 
+  @Column()
   doctorId: string;
-
+  
+  @Column()
   scheduledPacientId: string | null;
 }
 

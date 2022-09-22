@@ -1,14 +1,22 @@
 import { Request, Response } from 'express';
-import { container } from 'tsyringe';
 import { instanceToInstance } from 'class-transformer';
-import CreateDoctorService from '@modules/users/services/CreateDoctorService';
+import DoctorsCadastro from '../../database/cadastros/DoctorsCadastro';
+import AppError from '@shared/errors/AppError';
 
 export default class DoctorsController {
   public async create(req: Request, res: Response): Promise<Response> {
     const { name, email } = req.body;
-    const createDoctorService = container.resolve(CreateDoctorService);
-    const doctor = await createDoctorService.execute({ name, email });
+    const doctorsCadastro = DoctorsCadastro.getInstance();
+    const checkDoctorExists = await doctorsCadastro.findByName(name);
 
+    if (checkDoctorExists) {
+      throw new AppError('Médico já cadastrado no sistema!');
+    }
+
+    const doctor = await doctorsCadastro.create({
+      name,
+      email,
+    });
     return res.json(instanceToInstance(doctor));
   }
 }

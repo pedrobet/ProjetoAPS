@@ -1,11 +1,14 @@
-import { Collection } from 'fireorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Collection('doctors')
+@Entity('doctors')
 class Doctor {
-  id: string;
+  @ObjectIdColumn()
+  _id: ObjectID;
 
+  @Column()
   name: string;
-
+  
+  @Column()
   email: string;
 }
 

@@ -1,17 +1,23 @@
-import { Collection } from 'fireorm';
+import { Entity, ObjectIdColumn, ObjectID, Column } from 'typeorm';
 
-@Collection('user_tokens')
+@Entity('user_tokens')
 class UserToken {
-  id: string;
+  @ObjectIdColumn()
+  _id: ObjectID;
 
+  @Column()
   user_id: string;
 
+  @Column()
   refresh_token: string;
 
+  @Column()
   expiresAt: Date;
 
+  @Column()
   created_at: Date;
 
+  @Column()
   updated_at: Date;
 }
 

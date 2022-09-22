@@ -1,17 +1,23 @@
-import { Collection } from 'fireorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Collection('patients')
+@Entity('patients')
 class Patient {
-  id: string;
+  @ObjectIdColumn()
+  _id: ObjectID;
 
+  @Column()
   name: string;
 
+  @Column()
   birthDate: Date;
 
+  @Column()
   phone: number;
 
+  @Column()
   susNumber: number;
 
+  @Column()
   sex: string;
 }
 

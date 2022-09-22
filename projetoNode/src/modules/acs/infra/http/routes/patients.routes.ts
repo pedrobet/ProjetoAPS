@@ -9,7 +9,7 @@ import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAut
 const patientsRouter = Router();
 const patientsController = new PatientsController();
 
-patientsRouter.use(ensureAuthenticated);
+// patientsRouter.use(ensureAuthenticated);
 
 patientsRouter.post(
   '/',

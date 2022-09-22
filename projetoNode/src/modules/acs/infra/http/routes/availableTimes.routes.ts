@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { celebrate, Segments, Joi } from 'celebrate';
 
-import PatientsController from '../controllers/PatientsController';
-
 import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 import AvailableTimesController from '../controllers/AvailableTimesController';
 
@@ -23,10 +21,7 @@ availableTimesRouter.post(
   availableTimesController.create,
 );
 
-availableTimesRouter.get(
-  '/',
-  availableTimesController.findAll,
-);
+availableTimesRouter.get('/', availableTimesController.findAll);
 
 availableTimesRouter.get(
   '/get-by-doctor',

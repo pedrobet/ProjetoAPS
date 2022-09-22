@@ -16,6 +16,7 @@ export default function ensureAuthenticated(
   next: NextFunction
 ): void {
   const authHeader = req.headers.authorization;
+  
 
   if (!authHeader) {
     throw new AppError("token is missing", 401);

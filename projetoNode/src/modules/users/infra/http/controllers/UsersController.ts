@@ -1,25 +1,38 @@
-import { Request, Response } from 'express';
-import { container } from 'tsyringe';
 import { instanceToInstance } from 'class-transformer';
+import { Request, Response } from 'express';
 
-import CreateUserService from '@modules/users/services/CreateUserService';
-import ShowUsersService from '@modules/users/services/ShowUsersService';
-import RemoveUserService from '@modules/users/services/RemoveUserService';
-import GetUserService from '@modules/users/services/GetUserService';
-import UpdateUserService from '@modules/users/services/UpdateUserService';
+import BCryptHashProvider from '@modules/users/providers/HashProvider/implementations/BCryptHashProvider';
+import AppError from '@shared/errors/AppError';
+import UsersCadastro from '../../database/cadastros/UsersCadastro';
+import User from '../../database/schemas/User';
 
 export default class UsersController {
   public async create(req: Request, res: Response): Promise<Response> {
     const { name, email, password, username, role } = req.body;
 
-    const createUser = container.resolve(CreateUserService);
+    const usersCadastro = UsersCadastro.getInstance();
+    const hashProvider = BCryptHashProvider.getInstance();
 
-    const user = await createUser.execute({
+    const checkUserExists = await usersCadastro.findByName(username);
+
+    if (checkUserExists) {
+      throw new AppError('Username já existente.');
+    }
+
+    const checkEmail = await usersCadastro.findByEmail(email);
+
+    if (checkEmail) {
+      throw new AppError('E-mail já existente.');
+    }
+
+    const hashedPassword = await hashProvider.generateHash(password);
+
+    const user = await usersCadastro.create({
       username,
       name,
       email,
-      password,
       role,
+      password: hashedPassword,
     });
 
     return res.json(instanceToInstance(user));
@@ -29,17 +42,49 @@ export default class UsersController {
     const user_id = req.params.id;
     const { username, name, email, role, password, old_password } = req.body;
 
-    const updateUser = container.resolve(UpdateUserService);
+    const usersCadastro = UsersCadastro.getInstance();
+    const hashProvider = BCryptHashProvider.getInstance();
 
-    const user = await updateUser.execute({
-      username,
+    const user = await usersCadastro.findByID(user_id);
+
+    if (!user) {
+      throw new AppError('Usuário não encontrado!');
+    }
+
+    const userWithUpdatedUsername = await usersCadastro.findByName(username);
+
+    if (
+      userWithUpdatedUsername &&
+      String(userWithUpdatedUsername._id) !== user._id.toString()
+    ) {
+      throw new AppError('Username já esta em uso!');
+    }
+
+    Object.assign(user, {
       name,
       email,
+      username,
       role,
-      old_password,
-      password,
-      user_id,
     });
+
+    if (password && !old_password) {
+      throw new AppError(
+        'Você precisa informar a senha atual para alterar a senha!',
+      );
+    }
+
+    if (password && old_password) {
+      const checkOldPassword = await hashProvider.comapreHash(
+        old_password,
+        user.password,
+      );
+
+      if (!checkOldPassword) {
+        throw new AppError('Senha atual incorreta!');
+      }
+      user.password = await hashProvider.generateHash(password);
+    }
+    await usersCadastro.save(user);
 
     return res.json(instanceToInstance(user));
   }
@@ -47,15 +92,20 @@ export default class UsersController {
   public async getUser(req: Request, res: Response): Promise<Response> {
     const { username } = req.params;
 
-    const getUsers = container.resolve(GetUserService);
-    const user = await getUsers.execute(username);
+    const usersCadastro = UsersCadastro.getInstance();
+
+    const checkUserExists = await usersCadastro.findByName(username);
+
+    if (!checkUserExists) {
+      throw new AppError('Username não encontrado.');
+    }
 
     const userParse = {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      id: checkUserExists._id,
+      username: checkUserExists.username,
+      name: checkUserExists.name,
+      email: checkUserExists.email,
+      role: checkUserExists.role,
     };
 
     return res.json(userParse);
@@ -64,19 +114,37 @@ export default class UsersController {
   public async showAll(req: Request, res: Response): Promise<Response> {
     const { role } = req.params;
 
-    const showUsers = container.resolve(ShowUsersService);
+    const usersCadastro = UsersCadastro.getInstance();
 
-    const users = await showUsers.execute(role);
+    const user = await usersCadastro.findByRole(role);
 
-    return res.json(instanceToInstance(users));
+    const mappedUsers = user?.map((user: User) => {
+      return {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+      };
+    }) as User[];
+
+    if (!user) {
+      throw new AppError('Usuários não encontrados!');
+    }
+
+    return res.json(instanceToInstance(mappedUsers));
   }
 
   public async delete(req: Request, res: Response): Promise<Response> {
     const { username } = req.params;
+    const usersCadastro = UsersCadastro.getInstance();
+    const checkUserExists = await usersCadastro.findByName(username);
 
-    const removeUser = container.resolve(RemoveUserService);
+    if (!checkUserExists) {
+      throw new AppError('User not found');
+    }
 
-    await removeUser.execute(username);
+    await usersCadastro.remove(username);
 
     return res.sendStatus(200);
   }

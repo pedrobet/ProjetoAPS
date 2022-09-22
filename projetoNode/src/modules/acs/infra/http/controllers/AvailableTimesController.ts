@@ -1,50 +1,67 @@
-import { Request, Response } from 'express';
-import { container } from 'tsyringe';
 import { instanceToInstance } from 'class-transformer';
+import { Request, Response } from 'express';
 
-import CreatePatientService from '@modules/acs/services/CreatePatientService';
-import CreateAvailableTimeService from '@modules/acs/services/CreateAvailableTimeService';
-import FindAvailableTimeServiceByDoctorService from '@modules/acs/services/FindAvailableTimeServiceByDoctorService';
-import FindAllAvailableTimesServiceService from '@modules/acs/services/FindAllAvailableTimesServicerService';
+import DoctorsCadastro from '@modules/users/infra/database/cadastros/DoctorsCadastro';
+import AppError from '@shared/errors/AppError';
+import { subHours } from 'date-fns';
+import AvailableTimesCadastro from '../../database/cadastros/AvailableTimesCadastro';
+import AvailableTime from '../../database/schemas/AvailableTime';
 
 export default class AvailableTimesController {
   public async create(req: Request, res: Response): Promise<Response> {
     const { doctorName, startDate, endDate } = req.body;
 
-    const createAvailableTime = container.resolve(CreateAvailableTimeService);
+    const doctorsCadastro = DoctorsCadastro.getInstance();
+    const availableTimeCadastro = AvailableTimesCadastro.getInstance();
 
-    const newAvailableTime = await createAvailableTime.execute({
-      doctorName,
-      startDate,
-      endDate,
-    });
+    const parsedStartDate = new Date(subHours(new Date(startDate), 3));
+    const parsedEndDate = new Date(subHours(new Date(endDate), 3));
+    const checkDoctorExists = await doctorsCadastro.findByName(doctorName);
 
-    return res.json(instanceToInstance(newAvailableTime));
+    if (!checkDoctorExists) {
+      throw new AppError('O médico não foi encontrado no sistema!');
+    }
+
+    let dateLoop = parsedStartDate;
+    const availableTimesByDoctor: AvailableTime[] = [];
+    while (dateLoop <= parsedEndDate) {
+      const availableTime = await availableTimeCadastro.create({
+        dateLoopSlice: dateLoop,
+        doctorName,
+        doctorId: checkDoctorExists._id.toString(),
+      });
+
+      availableTimesByDoctor.push(availableTime);
+      dateLoop = new Date(dateLoop.setHours(dateLoop.getHours() + 1));
+    }
+
+    return res.json(instanceToInstance(availableTimesByDoctor));
   }
 
   public async findAll(req: Request, res: Response): Promise<Response> {
-    const findAvailableTimesByDoctorService = container.resolve(
-      FindAllAvailableTimesServiceService,
-    );
+    const availabelTimesCadastro = AvailableTimesCadastro.getInstance();
 
-    const doctorsAvailableTimes =
-      await findAvailableTimesByDoctorService.execute();
+    const allAvailableTimes = await availabelTimesCadastro.findAll();
 
-    return res.json(instanceToInstance(doctorsAvailableTimes));
+    return res.json(instanceToInstance(allAvailableTimes));
   }
 
   public async findByDoctor(req: Request, res: Response): Promise<Response> {
     const { doctorName } = req.body;
 
-    const findAvailableTimesByDoctorService = container.resolve(
-      FindAvailableTimeServiceByDoctorService,
-    );
+    const doctorsCadastro = DoctorsCadastro.getInstance();
+    const availableTimeCadastro = AvailableTimesCadastro.getInstance();
 
-    const doctorsAvailableTimes =
-      await findAvailableTimesByDoctorService.execute({
-        doctorName,
-      });
+    const checkDoctorExists = await doctorsCadastro.findByName(doctorName);
 
-    return res.json(instanceToInstance(doctorsAvailableTimes));
+    if (!checkDoctorExists) {
+      throw new AppError('O médico não foi encontrado no sistema!');
+    }
+
+    const availableTimesByDoctor = await availableTimeCadastro.findByDoctor({
+      doctorName,
+    });
+
+    return res.json(instanceToInstance(availableTimesByDoctor));
   }
 }
