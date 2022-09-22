@@ -8,7 +8,7 @@ import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAut
 const usersRouter = Router();
 const usersController = new UsersController();
 
-usersRouter.use(ensureAuthenticated);
+// usersRouter.use(ensureAuthenticated);
 
 usersRouter.get(
   '/get/:username',

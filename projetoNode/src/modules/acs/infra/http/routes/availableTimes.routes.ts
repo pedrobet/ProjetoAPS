@@ -7,7 +7,7 @@ import AvailableTimesController from '../controllers/AvailableTimesController';
 const availableTimesRouter = Router();
 const availableTimesController = new AvailableTimesController();
 
-availableTimesRouter.use(ensureAuthenticated);
+// availableTimesRouter.use(ensureAuthenticated);
 
 availableTimesRouter.post(
   '/',

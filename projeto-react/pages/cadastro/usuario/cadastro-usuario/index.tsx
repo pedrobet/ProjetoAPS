@@ -13,11 +13,11 @@ import {
 import router from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { api } from "../../../services/api";
+import { api } from "../../../../services/api";
 
 // import { Container } from './styles';
 
-const Paciente: React.FC = () => {
+const Usuario: React.FC = () => {
   const {
     register,
     handleSubmit,
@@ -29,16 +29,16 @@ const Paciente: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const { data: patientData } = await api.post("/patients", {
+      const { data: patientData } = await api.post("/users", {
         name: data.nome,
-        birthDate: data.dataNascimento,
-        phone: Number(data.telefone),
-        susNumber: Number(data.susNumber),
-        sex: data.sexo,
+        email: data.email,
+        password: data.senha,
+        role: data.role,
+        username: data.username,
       });
       if (patientData) {
         toast({
-          title: "Paciente cadastrado com sucesso",
+          title: "Usuário cadastrado com sucesso",
           description: "Você será redirecionado para a página principal",
           status: "success",
           duration: 3000,
@@ -52,7 +52,7 @@ const Paciente: React.FC = () => {
     } catch (error: any) {
       console.log(error);
       toast({
-        title: "Erro ao cadastrar o paciente",
+        title: "Erro ao cadastrar o usuário",
         description: error.response?.data?.message || error.message,
         status: "error",
         duration: 9000,
@@ -71,7 +71,7 @@ const Paciente: React.FC = () => {
         pl={2}
         width="fit-content"
       >
-        Cadastro de Pacientes
+        Cadastro de Usuários
       </Heading>
       <Flex
         alignSelf="center"
@@ -99,77 +99,97 @@ const Paciente: React.FC = () => {
                 </FormErrorMessage>
               )}
             </FormControl>
-            <FormControl isInvalid={!!errors.telefone}>
+            <FormControl isInvalid={!!errors.email}>
               <FormLabel fontSize="lg" color="gray.500">
-                Telefone
+                E-mail
               </FormLabel>
               <InputGroup display="flex" flexDir="column">
                 <Input
-                  type="number"
-                  placeholder="apenas números"
-                  {...register("telefone", { required: true })}
+                  type="email"
+                  {...register("email", { required: true })}
                 />
-                {errors.telefone && (
+                {errors.email && (
                   <FormErrorMessage>
-                    O Telefone do paciente é obrigatório.
+                    O E-mail do usuário é obrigatório.
                   </FormErrorMessage>
                 )}
               </InputGroup>
             </FormControl>
           </Flex>
           <Flex width="100%" gap={10}>
-            <FormControl isInvalid={!!errors.susNumber}>
+            <FormControl isInvalid={!!errors.username}>
               <FormLabel fontSize="lg" color="gray.500">
-                Nº do SUS
+                Username
               </FormLabel>
-              <InputGroup display="flex" flexDir="column">
-                <Input
-                  type="number"
-                  {...register("susNumber", { required: true })}
-                />
-                {errors.susNumber && (
-                  <FormErrorMessage>
-                    O Nº do SUS é obrigatório.
-                  </FormErrorMessage>
-                )}
-              </InputGroup>
+              <Input
+                type="text"
+                {...register("username", { required: true })}
+              />
+              {errors.username && (
+                <FormErrorMessage>
+                  O Username do usuário é obrigatório.
+                </FormErrorMessage>
+              )}
             </FormControl>
-
-            <FormControl isInvalid={!!errors.dataNascimento}>
+            <FormControl isInvalid={!!errors.role}>
               <FormLabel fontSize="lg" color="gray.500">
-                Data de Nascimento
+                Tipo de usuário
               </FormLabel>
               <InputGroup display="flex" flexDir="column">
-                <Input
-                  type="date"
-                  {...register("dataNascimento", { required: true })}
-                />
-                {errors.dataNascimento && (
+                <Select
+                  {...register("role", { required: true })}
+                  defaultValue="acs"
+                >
+                  <option value="acs">Agente de Saúde</option>
+                  <option value="admin">Administrador</option>
+                </Select>
+                {errors.role && (
                   <FormErrorMessage>
-                    A Data de Nascimento do paciente é obrigatória.
+                    O tipo de usuário deve ser definido.
                   </FormErrorMessage>
                 )}
               </InputGroup>
             </FormControl>
           </Flex>
-          <Flex maxW="30%">
-            <FormControl isInvalid={!!errors.sexo}>
+          <Flex width="100%" gap={10}>
+            <FormControl isInvalid={!!errors.senha}>
               <FormLabel fontSize="lg" color="gray.500">
-                Sexo do paciente
+                Senha
               </FormLabel>
               <InputGroup display="flex" flexDir="column">
-                <Select
-                  {...register("sexo", { required: true })}
-                  defaultValue="outro"
-                >
-                  <option value="feminino">Feminino</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="outro">Outro</option>
-                </Select>
-                {errors.sexo && (
-                  <FormErrorMessage>
-                    O Sexo do paciente é obrigatório.
-                  </FormErrorMessage>
+                <Input
+                  type="password"
+                  {...register("senha", {
+                    required: {
+                      value: true,
+                      message: "Você deve definir uma senha para o usuário.",
+                    },
+                    minLength: {
+                      value: 8,
+                      message: "A senha deve ter no mínimo 8 caracteres",
+                    },
+                  })}
+                />
+                {errors.senha && (
+                  <FormErrorMessage>{`${errors.senha.message}`}</FormErrorMessage>
+                )}
+              </InputGroup>
+            </FormControl>
+
+            <FormControl isInvalid={!!errors.senha_repeat}>
+              <FormLabel fontSize="lg" color="gray.500">
+                Repita a senha
+              </FormLabel>
+              <InputGroup display="flex" flexDir="column">
+                <Input
+                  type="password"
+                  {...register("senha_repeat", {
+                    validate: (value) =>
+                      value === watch("senha") || "As senhas não coincidem",
+                  })}
+                />
+                {errors.senha_repeat && (
+                  <FormErrorMessage>{`${errors.senha_repeat.message}`}</FormErrorMessage>
                 )}
               </InputGroup>
             </FormControl>
@@ -191,4 +211,4 @@ const Paciente: React.FC = () => {
   );
 };
 
-export default Paciente;
+export default Usuario;
