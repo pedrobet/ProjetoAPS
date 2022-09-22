@@ -21,5 +21,10 @@ doctorsRouter.post(
   doctorsController.create,
 );
 
+doctorsRouter.get(
+  '/',
+  doctorsController.getDoctors,
+);
+
 
 export default doctorsRouter;

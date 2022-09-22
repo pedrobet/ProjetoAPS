@@ -19,4 +19,11 @@ export default class DoctorsController {
     });
     return res.json(instanceToInstance(doctor));
   }
+
+  public async getDoctors(req: Request, res: Response): Promise<Response> {
+    const doctorsCadastro = DoctorsCadastro.getInstance();
+    const doctors = await doctorsCadastro.findAll();
+
+    return res.json(instanceToInstance(doctors));
+  }
 }

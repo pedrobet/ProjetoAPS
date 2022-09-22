@@ -32,6 +32,14 @@ class DoctorsCadastro implements IDoctorsCadastro {
     return doctor;
   }
 
+  public async findAll(): Promise<string[] | undefined | null> {
+    const doctors = await (
+      await this.ormRepository.find()
+    );
+
+    return doctors.map(doctor => doctor.name);
+  }
+
   public async create({ email, name }: ICreateDoctorData): Promise<Doctor> {
     const doctor = new Doctor();
     doctor.email = email;
