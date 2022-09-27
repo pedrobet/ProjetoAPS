@@ -47,7 +47,6 @@ class AvailableTimesCadastro implements IAvailableTimesCadastro {
     newAvailableTime.availableTime = dateLoopSlice;
     newAvailableTime.doctorName = doctorName;
     newAvailableTime.doctorId = doctorId;
-    newAvailableTime.scheduledPacientId = null;
 
     await this.ormRepository.save(newAvailableTime);
 

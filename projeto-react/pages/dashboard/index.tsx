@@ -6,6 +6,7 @@ import { IconType } from "react-icons";
 import { GrUserAdmin, GrUser } from "react-icons/gr";
 import { BsClockHistory, BsCardList, BsCardChecklist } from "react-icons/bs";
 import { useRouter } from "next/router";
+import { useNotifications } from "../../hooks/useQueries";
 
 // import { Container } from './styles';
 

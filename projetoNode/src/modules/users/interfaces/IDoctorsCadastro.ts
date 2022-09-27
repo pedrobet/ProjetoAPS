@@ -10,5 +10,6 @@ export default interface IDoctorsCadastro {
   findByName(name: string): Promise<Doctor | undefined | null>;
   findByEmail(email: string): Promise<Doctor | undefined | null>;
   findAll(): Promise<string[] | undefined | null>;
+  findById(id: string): Promise<Doctor | undefined | null>;
   create(data: ICreateDoctorData): Promise<Doctor>;
 }

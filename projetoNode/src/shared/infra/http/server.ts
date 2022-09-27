@@ -1,9 +1,9 @@
-import 'reflect-metadata';
 import 'dotenv/config';
+import 'reflect-metadata';
 
-import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
 import { errors } from 'celebrate';
+import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 
 import AppError from '../../errors/AppError';
@@ -58,10 +58,6 @@ admin.initializeApp({
 
 const firestore = admin.firestore();
 fireorm.initialize(firestore);
-
-// setInterval(() => {
-//   console.log('Hello World');
-// }, 1000 * 10);
 
 if (firestore) {
   console.log('🔥 Firestore is connected');

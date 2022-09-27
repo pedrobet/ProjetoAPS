@@ -11,10 +11,10 @@ class AvailableTime {
   availableTime: Date;
 
   @Column()
-  doctorName: Doctor;
+  doctorName: string;
 
   @Column()
-  scheduledPatient: Patient | null;
+  doctorId: string;
 }
 
 export default AvailableTime;

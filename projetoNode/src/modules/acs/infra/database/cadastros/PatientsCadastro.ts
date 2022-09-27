@@ -5,6 +5,7 @@ import IPatientsCadastro, {
 } from '@modules/acs/interfaces/IPatientsCadastro';
 
 import { getRepository, IRepository } from 'fireorm';
+import { ObjectID } from 'mongodb';
 import { getMongoRepository, MongoRepository } from 'typeorm';
 
 class PatientsCadastro implements IPatientsCadastro {
@@ -24,6 +25,14 @@ class PatientsCadastro implements IPatientsCadastro {
 
   public async findByName(name: string): Promise<Patient | undefined | null> {
     const patient = await this.ormRepository.findOne({ where: { name: name } });
+    return patient;
+  }
+
+  public async findById(id: string): Promise<Patient | null | undefined> {
+    const patient = await this.ormRepository.findOne({
+      where: { _id: new ObjectID(id) },
+    });
+
     return patient;
   }
 

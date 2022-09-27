@@ -2,6 +2,7 @@ import IDoctorsCadastro, {
   ICreateDoctorData,
 } from '@modules/users/interfaces/IDoctorsCadastro';
 import { getRepository, IRepository } from 'fireorm';
+import { ObjectID } from 'mongodb';
 import { MongoRepository, getMongoRepository } from 'typeorm';
 import Doctor from '../schemas/Doctor';
 
@@ -32,10 +33,15 @@ class DoctorsCadastro implements IDoctorsCadastro {
     return doctor;
   }
 
+  public async findById(id: string): Promise<Doctor | undefined | null> {
+    const doctor = await this.ormRepository.findOne({
+      where: { _id: new ObjectID(id) },
+    });
+    return doctor;
+  }
+
   public async findAll(): Promise<string[] | undefined | null> {
-    const doctors = await (
-      await this.ormRepository.find()
-    );
+    const doctors = await await this.ormRepository.find();
 
     return doctors.map(doctor => doctor.name);
   }

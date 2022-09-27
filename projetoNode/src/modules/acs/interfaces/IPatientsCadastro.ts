@@ -1,4 +1,4 @@
-import Patient from "../infra/database/schemas/Patient";
+import Patient from '../infra/database/schemas/Patient';
 
 export interface ICreatePatientData {
   name: string;
@@ -16,7 +16,7 @@ export default interface IPatientsCadastro {
     susNumber,
     sex,
   }: ICreatePatientData): Promise<Patient | undefined | null>;
-
+  findById(id: string): Promise<Patient | undefined | null>;
   findByName(name: string): Promise<Patient | undefined | null>;
   findBySusNumber(susNumber: number): Promise<Patient | undefined | null>;
 }
