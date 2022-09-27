@@ -74,7 +74,7 @@ const Home: NextPage = () => {
     >
       <GridItem
         bgColor=" #8BC6EC"
-        bgImage="linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%)"
+        bgImage="linear-gradient(135deg, #8BC6EC 0%, #3182CE 100%)"
       ></GridItem>
       <GridItem bgColor="gray.50" boxShadow="base">
         <Flex
@@ -131,7 +131,7 @@ const Home: NextPage = () => {
               <Flex width="100%" mt={4} justify="end">
                 <Button
                   type="submit"
-                  colorScheme="purple"
+                  colorScheme="blue"
                   variant="outline"
                   size="lg"
                   isLoading={isSubmitting}

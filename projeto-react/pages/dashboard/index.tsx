@@ -34,12 +34,12 @@ const linksMap: { [key: string]: string } = {
 };
 
 const Dashboard: React.FC = () => {
- 
+
   const router = useRouter();
 
   return (
     <Flex w="100%" h="100vh" bgColor="gray.100">
-  
+    
       <Flex align={"center"} justify={"center"} w="100%" h="100vh">
         <Grid
           gridTemplateRows="1fr 1fr"

@@ -59,6 +59,10 @@ admin.initializeApp({
 const firestore = admin.firestore();
 fireorm.initialize(firestore);
 
+// setInterval(() => {
+//   console.log('Hello World');
+// }, 1000 * 10);
+
 if (firestore) {
   console.log('🔥 Firestore is connected');
 }

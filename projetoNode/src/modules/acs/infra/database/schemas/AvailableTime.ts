@@ -1,4 +1,6 @@
+import Doctor from '@modules/users/infra/database/schemas/Doctor';
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import Patient from './Patient';
 
 @Entity('available_times')
 class AvailableTime {
@@ -9,13 +11,10 @@ class AvailableTime {
   availableTime: Date;
 
   @Column()
-  doctorName: string;
+  doctorName: Doctor;
 
   @Column()
-  doctorId: string;
-  
-  @Column()
-  scheduledPacientId: string | null;
+  scheduledPatient: Patient | null;
 }
 
 export default AvailableTime;
