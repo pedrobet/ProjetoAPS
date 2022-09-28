@@ -3,12 +3,13 @@ import { getRepository, IRepository } from 'fireorm';
 
 import { getMongoRepository, MongoRepository } from 'typeorm';
 import AvailableTime from '../schemas/AvailableTime';
-import ScheduledRequest from '../schemas/scheduledRequest';
+import ScheduledRequest from '../schemas/ScheduledRequest';
 
 import FirebaseScheduledRequest from '../schemas/FirebaseScheduledRequest';
 import { ObjectID } from 'mongodb';
 import PatientsCadastro from './PatientsCadastro';
 import DoctorsCadastro from '@modules/users/infra/database/cadastros/DoctorsCadastro';
+import { subHours } from 'date-fns';
 
 class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
   private ormRepository: MongoRepository<ScheduledRequest>;
@@ -40,7 +41,6 @@ class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
           consultTime: firebaseElement.consultTime,
           doctor: firebaseElement.doctor,
           patient: firebaseElement.patient,
-          confirmed: false,
         }),
       );
 
@@ -69,13 +69,13 @@ class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
     }[]
   > {
     const scheduleRequests = await this.ormRepository.find();
-    const scheduleRequestsFormatted =scheduleRequests.map(
-      async (scheduleRequest) => {
+    const scheduleRequestsFormatted = scheduleRequests.map(
+      async scheduleRequest => {
         const patient = await PatientsCadastro.getInstance().findById(
-          scheduleRequest.patient
+          scheduleRequest.patient,
         );
         const doctor = await DoctorsCadastro.getInstance().findById(
-          scheduleRequest.doctor
+          scheduleRequest.doctor,
         );
 
         return {
@@ -84,54 +84,43 @@ class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
           consultTime: scheduleRequest.consultTime,
           doctor: doctor?.name,
           patient: patient?.name,
-          confirmed: scheduleRequest.confirmed,
         };
-      }
+      },
     );
 
     const scheduleRequestsFormattedResolved = await Promise.all(
-      scheduleRequestsFormatted
+      scheduleRequestsFormatted,
     );
 
     return scheduleRequestsFormattedResolved;
   }
 
-  public async getAllScheduleRequestAwaitingToApprove(): Promise<
-    {
-      _id: ObjectID;
-      id: string;
-      consultTime: Date;
-      doctor: string;
-      patient: string;
-    }[]
-  > {
-    const scheduleRequests = await this.ormRepository.find({
-      where: { confirmed: false },
-    });
-
-    return scheduleRequests;
-  }
-
   public async approveScheduledRequest(
     scheduleRequest: ScheduledRequest,
-  ): Promise<ScheduledRequest | undefined> {
+  ): Promise<AvailableTime | undefined> {
     const availableTime = await this.availableTimesRepository.findOne({
       where: {
-        availableTime: new Date(scheduleRequest.consultTime),
+        availableTime: new Date(
+          subHours(scheduleRequest.consultTime, 3).toUTCString(),
+        ),
         doctorId: scheduleRequest.doctor,
       },
     });
 
     if (availableTime) {
-      await this.availableTimesRepository.remove(availableTime);
+      const patient = await PatientsCadastro.getInstance().findById(
+        scheduleRequest.patient,
+      );
+      if (patient) {
+        availableTime.patientId = patient?._id.toString();
+        availableTime.patientName = patient?.name;
+      }
+
+      await this.availableTimesRepository.save(availableTime);
+      await this.ormRepository.remove(scheduleRequest);
     }
 
-    const updatedScheduleRequest = await this.ormRepository.save({
-      ...scheduleRequest,
-      confirmed: true,
-    });
-
-    return updatedScheduleRequest;
+    return availableTime;
   }
 
   public async reproveScheduledRequest(

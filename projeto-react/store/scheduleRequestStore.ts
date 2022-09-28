@@ -1,25 +1,11 @@
 import create from "zustand";
 
-interface Doctor {
-  _id: string;
-  name: string;
-  email: string;
-}
-
-interface Patient {
-  _id: string;
-  name: string;
-  birthDate: Date;
-  phone: number;
-  sex: string;
-  susNumber: number;
-}
 
 interface ScheduleRequest {
   _id: string;
   id: string;
-  doctor: Doctor;
-  patient: Patient;
+  doctor: string;
+  patient: string;
   consultTime: Date;
 }
 

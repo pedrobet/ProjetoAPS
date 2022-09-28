@@ -5,6 +5,7 @@ import PatientsCadastro from '../../database/cadastros/PatientsCadastro';
 import AppError from '@shared/errors/AppError';
 import ScheduledRequestCadastro from '../../database/cadastros/ScheduleRequestCadastro';
 import DoctorsCadastro from '@modules/users/infra/database/cadastros/DoctorsCadastro';
+import AvailableTimesCadastro from '../../database/cadastros/AvailableTimesCadastro';
 
 export default class ScheduledRequestsController {
   public async getAllFromMongo(req: Request, res: Response): Promise<Response> {
@@ -30,7 +31,7 @@ export default class ScheduledRequestsController {
     try {
       const scheduledRequestCadastro = ScheduledRequestCadastro.getInstance();
       const allScheduled =
-        await scheduledRequestCadastro.getAllScheduleRequestAwaitingToApprove();
+        await scheduledRequestCadastro.getAllScheduleRequestFromMongo();
 
       if (!allScheduled) {
         throw new AppError('No scheduled requests found', 404);
@@ -60,27 +61,13 @@ export default class ScheduledRequestsController {
       const scheduledRequestCadastro = ScheduledRequestCadastro.getInstance();
 
       const getFirst =
-        await scheduledRequestCadastro.getAllScheduleRequestAwaitingToApprove();
+        await scheduledRequestCadastro.getAllScheduleRequestFromMongo();
 
       if (getFirst.length === 0) {
         return res.status(200).json(null);
       }
 
-      const patientsCadastro = PatientsCadastro.getInstance();
-      const doctorsCadastro = DoctorsCadastro.getInstance();
-
-      const patient = await patientsCadastro.findById(getFirst[0].patient);
-      const doctor = await doctorsCadastro.findById(getFirst[0].doctor);
-
-      const scheduleRequest = {
-        _id: getFirst[0]._id,
-        id: getFirst[0].id,
-        consultTime: getFirst[0].consultTime,
-        doctor: instanceToInstance(doctor),
-        patient: instanceToInstance(patient),
-      };
-
-      return res.status(200).json(scheduleRequest);
+      return res.status(200).json(getFirst[0]);
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -92,11 +79,20 @@ export default class ScheduledRequestsController {
       const { id } = req.params;
 
       const scheduledRequestCadastro = ScheduledRequestCadastro.getInstance();
+      const availableTimeCadastro = AvailableTimesCadastro.getInstance();
 
       const scheduleRequest = await scheduledRequestCadastro.findById(id);
 
       if (!scheduleRequest) {
         throw new AppError('No scheduled requests found', 404);
+      }
+
+      const hasAvailableTime = await availableTimeCadastro.hasAvailableTime(
+        scheduleRequest,
+      );
+
+      if (!hasAvailableTime) {
+        throw new AppError('No available time found', 404);
       }
 
       const confirmedScheduledRequest =
@@ -106,7 +102,16 @@ export default class ScheduledRequestsController {
         throw new AppError('Error confirming scheduled request', 500);
       }
 
-      return res.status(200).json(confirmedScheduledRequest);
+      //check if has next scheduledRequest
+
+      const getFirst =
+        await scheduledRequestCadastro.getAllScheduleRequestFromMongo();
+
+      if (getFirst.length === 0) {
+        return res.status(200).json(null);
+      }
+
+      return res.status(200).json(getFirst[0]);
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);

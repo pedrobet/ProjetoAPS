@@ -8,6 +8,7 @@ import Doctor from '../schemas/Doctor';
 
 class DoctorsCadastro implements IDoctorsCadastro {
   private ormRepository: MongoRepository<Doctor>;
+  // implementação singleton
   private static INSTANCE: DoctorsCadastro;
 
   constructor() {

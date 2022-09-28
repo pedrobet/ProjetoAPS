@@ -104,15 +104,9 @@ const Ver: React.FC = () => {
                       )}
                     </Td>
                     <Td>
-                      {scheduleRequest.confirmed ? (
-                        <Badge colorScheme="green" rounded="full" p={2}>
-                          Confirmado
-                        </Badge>
-                      ) : (
-                        <Badge colorScheme="orange" rounded="full" p={2}>
-                          Pendente
+                      <Badge colorScheme="orange" rounded="full" p={2}>
+                        Pendente
                       </Badge>
-                      )}
                     </Td>
                   </Tr>
                 ))}

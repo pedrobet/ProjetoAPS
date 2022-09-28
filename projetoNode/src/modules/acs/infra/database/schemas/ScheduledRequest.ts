@@ -19,10 +19,6 @@ class ScheduledRequest {
   // doctor id
   @Column()
   doctor: string;
-
-  // confirmation
-  @Column()
-  confirmed: boolean;
 }
 
 export default ScheduledRequest;

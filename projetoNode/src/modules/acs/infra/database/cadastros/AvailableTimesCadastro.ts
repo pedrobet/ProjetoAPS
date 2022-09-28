@@ -1,9 +1,13 @@
-import IAvailableTimesCadastro from '@modules/acs/interfaces/IAvailableTimesCadastro';
+import IAvailableTimesCadastro, {
+  IAssignPatientToAvailableTimeData,
+} from '@modules/acs/interfaces/IAvailableTimesCadastro';
 import { ICreateAvailableTimeData } from '../../../interfaces/IAvailableTimesCadastro';
 
 import { getRepository, IRepository } from 'fireorm';
 import AvailableTime from '../schemas/AvailableTime';
 import { getMongoRepository, MongoRepository } from 'typeorm';
+import ScheduledRequest from '../schemas/ScheduledRequest';
+import { subDays, subHours } from 'date-fns';
 
 class AvailableTimesCadastro implements IAvailableTimesCadastro {
   private ormRepository: MongoRepository<AvailableTime>;
@@ -47,10 +51,49 @@ class AvailableTimesCadastro implements IAvailableTimesCadastro {
     newAvailableTime.availableTime = dateLoopSlice;
     newAvailableTime.doctorName = doctorName;
     newAvailableTime.doctorId = doctorId;
+    newAvailableTime.patientName = null;
+    newAvailableTime.patientId = null;
 
     await this.ormRepository.save(newAvailableTime);
 
     return newAvailableTime;
+  }
+
+  public async hasAvailableTime(
+    scheduledRequest: ScheduledRequest,
+  ): Promise<AvailableTime | undefined> {
+    const availableTime = await this.ormRepository.findOne({
+      where: {
+        doctorId: scheduledRequest.doctor,
+        availableTime: new Date(subHours(scheduledRequest.consultTime, 3).toUTCString()),
+      },
+    });
+
+    return availableTime;
+  }
+
+  public async assignPatient({
+    doctorId,
+    dateLoopSlice,
+    patientName,
+    patientId,
+  }: IAssignPatientToAvailableTimeData): Promise<AvailableTime | undefined> {
+    const availableTime = await this.ormRepository.findOne({
+      where: {
+        doctorId: doctorId,
+        patientName: null,
+        availableTime: dateLoopSlice,
+      },
+    });
+
+    if (availableTime) {
+      availableTime.patientName = patientName;
+      availableTime.patientId = patientId;
+
+      await this.ormRepository.save(availableTime);
+    }
+
+    return availableTime;
   }
 }
 

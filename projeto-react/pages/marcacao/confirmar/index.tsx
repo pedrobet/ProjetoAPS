@@ -6,6 +6,7 @@ import {
   FormLabel,
   Heading,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import React, { useEffect } from "react";
@@ -19,6 +20,7 @@ const Confirmar: React.FC = () => {
   const { setScheduleRequest, scheduleRequest } = useScheduleRequestStore(
     (state) => state
   );
+  const toast = useToast();
 
   const { isLoading, isFetching, refetch } = useQuery(
     ["scheduleRequestToApprove"],
@@ -29,6 +31,16 @@ const Confirmar: React.FC = () => {
     },
     {
       refetchOnWindowFocus: false,
+      onError: (error: Error) => {
+        console.log(error);
+        toast({
+          title: "Erro ao carregar requisição",
+          description: error.message,
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      },
     }
   );
 
@@ -39,9 +51,19 @@ const Confirmar: React.FC = () => {
       );
       if (data) {
         refetch();
+      } else {
+        setScheduleRequest(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      toast({
+        title: "Erro ao carregar requisição",
+        description: error.message,
+        position: "top-right",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
     }
   }
 
@@ -53,8 +75,16 @@ const Confirmar: React.FC = () => {
       if (data) {
         refetch();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      toast({
+        title: "Erro ao carregar requisição",
+        description: error.message,
+        position: "top-right",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
     }
   }
 
@@ -106,9 +136,7 @@ const Confirmar: React.FC = () => {
               <FormLabel>Paciente da requisição:</FormLabel>
               {scheduleRequest &&
                 (!isLoading && !isFetching ? (
-                  <Heading fontSize="lg">
-                    {scheduleRequest.patient.name}
-                  </Heading>
+                  <Heading fontSize="lg">{scheduleRequest.patient}</Heading>
                 ) : (
                   <Heading fontSize="lg">Carregando...</Heading>
                 ))}
@@ -122,7 +150,7 @@ const Confirmar: React.FC = () => {
               <FormLabel>Médico requerido:</FormLabel>
               {scheduleRequest &&
                 (!isLoading && !isFetching ? (
-                  <Heading fontSize="lg">{scheduleRequest.doctor.name}</Heading>
+                  <Heading fontSize="lg">{scheduleRequest.doctor}</Heading>
                 ) : (
                   <Heading fontSize="lg">Carregando...</Heading>
                 ))}

@@ -15,6 +15,12 @@ class AvailableTime {
 
   @Column()
   doctorId: string;
+
+  @Column()
+  patientName: string | null;
+
+  @Column()
+  patientId: string | null;
 }
 
 export default AvailableTime;

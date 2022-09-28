@@ -79,18 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <MenuItem onClick={()=>router.push('/marcacao/ver')}>Ver pedidos de marcação</MenuItem>
           <MenuItem onClick={()=>router.push('/marcacao/confirmar')}>Confirmar pedidos de marcação</MenuItem>
         </SubMenu>
-        <MenuItem
-          icon={
-            data > 0 ? (
-              <MdNotificationImportant color="red" />
-            ) : (
-              <IoMdNotificationsOutline />
-            )
-          }
-        >
-          {" "}
-          {data} novo(s) pedido(s) de marcação
-        </MenuItem>
+  
       </Menu>
     </ProSidebar>
   );

@@ -10,6 +10,7 @@ import { getMongoRepository, MongoRepository } from 'typeorm';
 
 class PatientsCadastro implements IPatientsCadastro {
   private ormRepository: MongoRepository<Patient>;
+  //implementação singleton
   private static INSTANCE: PatientsCadastro;
 
   constructor() {
