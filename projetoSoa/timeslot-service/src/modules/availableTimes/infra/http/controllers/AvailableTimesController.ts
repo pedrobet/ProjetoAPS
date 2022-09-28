@@ -10,9 +10,10 @@ import AvailableTime from '../../database/schemas/AvailableTime';
 export default class AvailableTimesController {
   public async create(req: Request, res: Response): Promise<Response> {
     const { doctorName, startDate, endDate } = req.body;
-
+    console.log('try to connect');
+    
     const response = await fetch(
-      `http://localhost:3335/doctors/findByName/${doctorName}`,
+      `http://localhost:3333/doctors/findByName/${doctorName}`,
       {
         method: 'GET',
       },
@@ -75,5 +76,40 @@ export default class AvailableTimesController {
     });
 
     return res.json(instanceToInstance(availableTimesByDoctor));
+  }
+
+  public async findByDoctorAndDate(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
+    const { doctorId, availableTime } = req.body;
+
+    const availabelTimesCadastro = AvailableTimesCadastro.getInstance();
+
+    const allAvailableTimesByDoctor =
+      await availabelTimesCadastro.findByDoctorAndDate({
+        doctorId,
+        availableTime,
+      });
+
+    if (allAvailableTimesByDoctor?.length === 0) {
+      throw new AppError('Não há horários disponíveis para este médico!');
+    }
+
+    return res.json(instanceToInstance(allAvailableTimesByDoctor));
+  }
+
+  public async update(req: Request, res: Response): Promise<Response> {
+    const { availableTime, doctorId, patientName, patientId } = req.body;
+    const availabelTimesCadastro = AvailableTimesCadastro.getInstance();
+
+    const assignedTimeslot = await availabelTimesCadastro.assignPatient({
+      dateLoopSlice: availableTime,
+      doctorId,
+      patientName,
+      patientId,
+    });
+
+    return res.json(instanceToInstance(assignedTimeslot));
   }
 }

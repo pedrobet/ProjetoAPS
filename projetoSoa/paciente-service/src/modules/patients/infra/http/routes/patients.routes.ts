@@ -7,7 +7,7 @@ import PatientsController from '../controllers/PatientsController';
 const patientsRouter = Router();
 const patientsController = new PatientsController();
 
-// chamar microsserviço
+
 patientsRouter.post(
   '/',
   celebrate({
@@ -20,6 +20,11 @@ patientsRouter.post(
     },
   }),
   patientsController.create,
+);
+
+patientsRouter.get(
+  '/findById/:id',
+  patientsController.findById,
 );
 
 export default patientsRouter;

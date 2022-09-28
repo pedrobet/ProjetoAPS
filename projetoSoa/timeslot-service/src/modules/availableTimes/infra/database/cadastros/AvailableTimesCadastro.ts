@@ -4,7 +4,7 @@ import IAvailableTimesCadastro, {
 } from '../../../interfaces/IAvailableTimesCadastro';
 
 import { subHours } from 'date-fns';
-import { getMongoRepository, MongoRepository } from 'typeorm';
+import { getMongoRepository, MongoRepository, ObjectID } from 'typeorm';
 import AvailableTime from '../schemas/AvailableTime';
 
 import { ScheduledRequest } from '../../../interfaces/IAvailableTimesCadastro';
@@ -32,6 +32,20 @@ class AvailableTimesCadastro implements IAvailableTimesCadastro {
   }): Promise<AvailableTime[] | null | undefined> {
     const doctorsAvailableTimes = await this.ormRepository.find({
       where: { doctorName: doctorName },
+    });
+
+    return doctorsAvailableTimes;
+  }
+
+  public async findByDoctorAndDate({
+    doctorId,
+    availableTime,
+  }: {
+    doctorId: string;
+    availableTime: Date;
+  }): Promise<AvailableTime[] | null | undefined> {
+    const doctorsAvailableTimes = await this.ormRepository.find({
+      where: { doctorId: new ObjectID(doctorId), availableTime: availableTime },
     });
 
     return doctorsAvailableTimes;

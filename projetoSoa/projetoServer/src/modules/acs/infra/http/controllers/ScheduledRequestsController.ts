@@ -89,7 +89,7 @@ export default class ScheduledRequestsController {
       };
 
       const response = await fetch(
-        `http://localhost:3336/timeslots/hasAvailableTimeSlot`,
+        `http://localhost:3336/timeslots/findByDoctorAndDate`,
         {
           method: 'POST',
           body: JSON.stringify(data),

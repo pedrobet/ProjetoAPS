@@ -4,9 +4,9 @@ createConnections([
   {
     name: 'mongo',
     type: 'mongodb',
-    host: 'mongo-paciente',
+    host: 'localhost',
     port: 27016,
-    url: 'mongodb://mongo-paciente:27016/projetoAPS',
+    url: 'mongodb://paciente-service:27016/projetoAPS',
     useUnifiedTopology: true,
     entities: ['./src/modules/**/infra/database/schemas/*.ts'],
   },

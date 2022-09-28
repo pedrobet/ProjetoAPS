@@ -30,4 +30,19 @@ availableTimesRouter.get(
   availableTimesController.findByDoctor,
 );
 
+availableTimesRouter.get(
+  '/byDoctorAndDate',
+  availableTimesController.findByDoctorAndDate,
+);
+
+availableTimesRouter.put(
+  '/byDoctorAndDate',
+  availableTimesController.findByDoctorAndDate,
+);
+
+availableTimesRouter.put(
+  '/update',
+  availableTimesController.update,
+);
+
 export default availableTimesRouter;

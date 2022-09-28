@@ -18,4 +18,8 @@ doctorsRouter.post(
 
 doctorsRouter.get('/', doctorsController.getDoctors);
 
+doctorsRouter.get('/findByName/:name', doctorsController.findByName);
+
+doctorsRouter.get('/findById/:id', doctorsController.findById);
+
 export default doctorsRouter;

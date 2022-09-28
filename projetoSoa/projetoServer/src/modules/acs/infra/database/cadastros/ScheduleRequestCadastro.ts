@@ -9,6 +9,8 @@ import { subHours } from 'date-fns';
 import { ObjectID } from 'mongodb';
 import FirebaseScheduledRequest from '../schemas/FirebaseScheduledRequest';
 
+import fetch from 'node-fetch'
+
 class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
   private ormRepository: MongoRepository<ScheduledRequest>;
   private fireormRepository: IRepository<FirebaseScheduledRequest>;

@@ -91,9 +91,9 @@ const proxyPaciente = createProxyMiddleware(optionsPaciente);
 const proxyMedico = createProxyMiddleware(optionsMedico);
 const proxyTimeslot = createProxyMiddleware(optionsTimeslot);
 
-app.get('/patients', proxyPaciente);
-app.get('/doctors', proxyMedico);
-app.get('/timeslots', proxyTimeslot);
+app.use('/patients', proxyPaciente);
+app.use('/doctors', proxyMedico);
+app.use('/timeslots', proxyTimeslot);
 
 
 
