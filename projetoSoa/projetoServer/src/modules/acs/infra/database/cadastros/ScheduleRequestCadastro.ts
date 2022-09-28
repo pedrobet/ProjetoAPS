@@ -2,24 +2,20 @@ import IScheduleRequestsCadastro from '@modules/acs/interfaces/IScheduledRequest
 import { getRepository, IRepository } from 'fireorm';
 
 import { getMongoRepository, MongoRepository } from 'typeorm';
-import AvailableTime from '../schemas/AvailableTime';
+import { AvailableTime } from '@modules/acs/interfaces/IScheduledRequestsCadastro';
 import ScheduledRequest from '../schemas/ScheduledRequest';
 
-import FirebaseScheduledRequest from '../schemas/FirebaseScheduledRequest';
-import { ObjectID } from 'mongodb';
-import PatientsCadastro from './PatientsCadastro';
-import DoctorsCadastro from '@modules/users/infra/database/cadastros/DoctorsCadastro';
 import { subHours } from 'date-fns';
+import { ObjectID } from 'mongodb';
+import FirebaseScheduledRequest from '../schemas/FirebaseScheduledRequest';
 
 class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
   private ormRepository: MongoRepository<ScheduledRequest>;
   private fireormRepository: IRepository<FirebaseScheduledRequest>;
-  private availableTimesRepository: MongoRepository<AvailableTime>;
   private static INSTANCE: ScheduledRequestCadastro;
 
   constructor() {
-    this.ormRepository = getMongoRepository('scheduledRequests', 'mongo');
-    this.availableTimesRepository = getMongoRepository(AvailableTime, 'mongo');
+    this.ormRepository = getMongoRepository(ScheduledRequest, 'mongo');
     this.fireormRepository = getRepository(FirebaseScheduledRequest);
   }
 
@@ -71,12 +67,21 @@ class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
     const scheduleRequests = await this.ormRepository.find();
     const scheduleRequestsFormatted = scheduleRequests.map(
       async scheduleRequest => {
-        const patient = await PatientsCadastro.getInstance().findById(
-          scheduleRequest.patient,
+        const responsePatient = await fetch(
+          `http://localhost:3334/patients/findById/${scheduleRequest.patient}`,
+          {
+            method: 'GET',
+          },
         );
-        const doctor = await DoctorsCadastro.getInstance().findById(
-          scheduleRequest.doctor,
+        const patient = await responsePatient.json();
+
+        const responseDoctor = await fetch(
+          `http://localhost:3335/doctors/findById/${scheduleRequest.doctor}`,
+          {
+            method: 'GET',
+          },
         );
+        const doctor = await responseDoctor.json();
 
         return {
           _id: scheduleRequest._id,
@@ -98,25 +103,45 @@ class ScheduledRequestCadastro implements IScheduleRequestsCadastro {
   public async approveScheduledRequest(
     scheduleRequest: ScheduledRequest,
   ): Promise<AvailableTime | undefined> {
-    const availableTime = await this.availableTimesRepository.findOne({
-      where: {
-        availableTime: new Date(
-          subHours(scheduleRequest.consultTime, 3).toUTCString(),
-        ),
-        doctorId: scheduleRequest.doctor,
+    const data = {
+      availableTime: new Date(
+        subHours(scheduleRequest.consultTime, 3).toUTCString(),
+      ),
+      doctorId: scheduleRequest.doctor,
+    };
+
+    const response = await fetch(
+      `http://localhost:3336/timeslots/byDoctorAndDate`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
       },
-    });
+    );
+    const availableTime = await response.json();
 
     if (availableTime) {
-      const patient = await PatientsCadastro.getInstance().findById(
-        scheduleRequest.patient,
+      const response = await fetch(
+        `http://localhost:3336/patients/findById/${scheduleRequest.patient}`,
+        {
+          method: 'GET',
+        },
       );
+      const patient = await response.json();
+
       if (patient) {
         availableTime.patientId = patient?._id.toString();
         availableTime.patientName = patient?.name;
       }
+      const data = {
+        ...availableTime,
+        patientId: patient?._id.toString(),
+        patientName: patient?.name,
+      };
 
-      await this.availableTimesRepository.save(availableTime);
+      await fetch(`http://localhost:3336/timeslots/update`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
       await this.ormRepository.remove(scheduleRequest);
     }
 

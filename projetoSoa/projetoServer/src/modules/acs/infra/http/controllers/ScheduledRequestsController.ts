@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
-import { instanceToInstance } from 'class-transformer';
 
-import PatientsCadastro from '../../database/cadastros/PatientsCadastro';
 import AppError from '@shared/errors/AppError';
+
 import ScheduledRequestCadastro from '../../database/cadastros/ScheduleRequestCadastro';
-import DoctorsCadastro from '@modules/users/infra/database/cadastros/DoctorsCadastro';
-import AvailableTimesCadastro from '../../database/cadastros/AvailableTimesCadastro';
 
 export default class ScheduledRequestsController {
   public async getAllFromMongo(req: Request, res: Response): Promise<Response> {
@@ -79,7 +76,6 @@ export default class ScheduledRequestsController {
       const { id } = req.params;
 
       const scheduledRequestCadastro = ScheduledRequestCadastro.getInstance();
-      const availableTimeCadastro = AvailableTimesCadastro.getInstance();
 
       const scheduleRequest = await scheduledRequestCadastro.findById(id);
 
@@ -87,9 +83,19 @@ export default class ScheduledRequestsController {
         throw new AppError('No scheduled requests found', 404);
       }
 
-      const hasAvailableTime = await availableTimeCadastro.hasAvailableTime(
-        scheduleRequest,
+      const data = {
+        doctorId: scheduleRequest.doctor,
+        availableTime: scheduleRequest.consultTime,
+      };
+
+      const response = await fetch(
+        `http://localhost:3336/timeslots/hasAvailableTimeSlot`,
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+        },
       );
+      const hasAvailableTime = await response.json();
 
       if (!hasAvailableTime) {
         throw new AppError('No available time found', 404);

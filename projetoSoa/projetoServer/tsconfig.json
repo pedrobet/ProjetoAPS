@@ -20,5 +20,5 @@
     "removeComments": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../paciente-service/src/modules/patients"]
 }

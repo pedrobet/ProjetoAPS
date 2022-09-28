@@ -3,6 +3,7 @@ import 'reflect-metadata';
 
 import { errors } from 'celebrate';
 import cors from 'cors';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 
@@ -10,7 +11,11 @@ import AppError from '../../errors/AppError';
 import routes from './routes';
 
 import '../../typeorm/index';
-
+import {
+  MEDICO_API_URL,
+  PACIENTE_API_URL,
+  TIMESLOT_API_URL,
+} from './servicesUrl';
 // account key:
 import serviceAccount from '../../../../projetoaps.json';
 
@@ -62,6 +67,35 @@ fireorm.initialize(firestore);
 if (firestore) {
   console.log('🔥 Firestore is connected');
 }
+
+// GATEWAY CONFIG
+const optionsPaciente = {
+  target: PACIENTE_API_URL,
+  changeOrigin: true,
+  logger: console,
+};
+
+const optionsMedico = {
+  target: MEDICO_API_URL,
+  changeOrigin: true,
+  logger: console,
+};
+
+const optionsTimeslot = {
+  target: TIMESLOT_API_URL,
+  changeOrigin: true,
+  logger: console,
+};
+
+const proxyPaciente = createProxyMiddleware(optionsPaciente);
+const proxyMedico = createProxyMiddleware(optionsMedico);
+const proxyTimeslot = createProxyMiddleware(optionsTimeslot);
+
+app.get('/patients', proxyPaciente);
+app.get('/doctors', proxyMedico);
+app.get('/timeslots', proxyTimeslot);
+
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server started at port ${PORT}`);

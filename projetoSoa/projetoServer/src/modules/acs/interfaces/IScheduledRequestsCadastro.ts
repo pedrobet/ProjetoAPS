@@ -1,7 +1,15 @@
-import AvailableTime from '../infra/database/schemas/AvailableTime';
 import ScheduledRequest from '../infra/database/schemas/ScheduledRequest';
 import FirebaseScheduledRequest from '../infra/database/schemas/FirebaseScheduledRequest';
 import { ObjectID } from 'mongodb';
+
+export type AvailableTime = {
+  _id: ObjectID;
+  availableTime: Date;
+  doctorName: string;
+  doctorId: string;
+  patientName: string | null;
+  patientId: string | null;
+};
 
 export default interface IScheduleRequestsCadastro {
   saveNewScheduledRequestToMongo: (

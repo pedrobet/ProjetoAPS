@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  app:
+    build: .
+    command: yarn start
+    ports:
+      - "3334:3000"
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - "mongo-paciente"
+    networks:
+      - backend 
+  mongo-paciente:
+    container_name: "mongo-paciente"
+    platform: linux/amd64
+    image: mongo:4.4.14
+    ports:
+      - "27016:27017"
+    restart: always  
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  app:
+    build: .
+    command: yarn start
+    ports:
+      - "3336:3000"
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - "mongo-timeslot"
+    networks:
+      - backend 
+  mongo-timeslot:
+    container_name: "mongo-timeslot"
+    platform: linux/amd64
+    image: mongo:4.4.14
+    ports:
+      - "27015:27017"
+    restart: always 
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
